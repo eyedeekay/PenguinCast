@@ -203,16 +203,22 @@ func (i *Server) Start() {
 		if i.Options.UsesI2P {
 			go func() {
 				for {
-					if listener, err := sam.I2PListener(i.srv.Addr, "127.0.0.1:7656", i.srv.Addr); err != nil {
+					addr := i.Options.Host + ":" + strconv.Itoa(i.Options.Socket.Port)
+					if listener, err := sam.I2PListener(addr, "127.0.0.1:7656", addr); err != nil {
 						panic(err)
 					} else {
-						if i.Options.DisableClearnet {
-							oldAddr := i.srv.Addr
-							i.srv.Addr = listener.Addr().String() + ":" + strconv.Itoa(i.Options.Socket.Port)
-							i.Options.Host = i.getHost(listener.Addr().String())
+						if i.Options.DisableClearnet && !strings.HasSuffix(i.Options.Host, ".b32.i2p") {
+							oldAddr := addr
+							newAddr := listener.Addr().String() + ":" + strconv.Itoa(i.Options.Socket.Port)
+							i.srv.Addr = newAddr
+							i.Options.Host = listener.Addr().String()
+							if err := os.Rename(oldAddr+".i2p.private", i.srv.Addr+".i2p.private"); err != nil {
+								i.logger.Log("Error: %s\n", err.Error())
+							}
+							if err := os.Rename(oldAddr+".i2p.public.txt", i.srv.Addr+".i2p.public.txt"); err != nil {
+								i.logger.Log("Error: %s\n", err.Error())
+							}
 							i.Options.Save()
-							os.Rename(oldAddr+".private", i.srv.Addr+".private")
-							os.Rename(oldAddr+".public.txt", i.srv.Addr+".public.txt")
 						}
 						i.logger.Log("Started on %s", listener.Addr().(i2pkeys.I2PAddr).Base32())
 						if err := i.srv.Serve(listener); err != nil {

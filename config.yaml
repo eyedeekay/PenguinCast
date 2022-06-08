@@ -2,48 +2,63 @@ Name: Rollstation radio
 Admin: admin@site.com
 Location: Saint Petersburg
 UsesI2P: true
-DisableClearnet: false
-Host: 127.0.0.1
+DisableClearnet: true
+Host: aukvjjdbxllktvs6n2qce4tr4ir4lpzcfjb4k37qrx3oiaxht24q.b32.i2p
 Socket:
-  Port: 8008
-
+    Port: 8008
 Limits:
-  Clients: 100000
-  Sources: 5
-  SourceIdleTimeOut: 10
-  EmptyBufferIdleTimeOut: 5
-  WriteTimeOut: 10
-
+    Clients: 100000
+    Sources: 5
+    SourceIdleTimeOut: 10
+    EmptyBufferIdleTimeOut: 5
+    WriteTimeOut: 10
 Auth:
-  AdminPassword: admin
-
+    AdminPassword: admin
 Paths:
-  Log: log/
-  Web: html/
-
+    Base: ""
+    Web: html/
+    Log: log/
 Logging:
-  LogLevel: 4
-  LogSize: 50000
-  UseMonitor: true
-  MonitorInterval: 5
-  UseStat: true
-  StatInterval: 5
-
+    LogLevel: 4
+    LogSize: 50000
+    UseMonitor: true
+    MonitorInterval: 5
+    UseStat: true
+    StatInterval: 5
 Mounts:
   - Name: RockRadio96
     User: admin
     Password: admin
-    Genre: Rock
     Description: Rock radio station, Saint Petersburg
     BitRate: 96
+    Genre: Rock
     BurstSize: 65535
-    DumpFile:
-
+    DumpFile: ""
+    MaxListeners: 0
+    contenttype: ""
+    streamurl: /RockRadio96
+    state:
+        started: false
+        startedtime: 0001-01-01T00:00:00Z
+        metainfo:
+            metaint: 122880
+            streamtitle: ""
+        listeners: 0
   - Name: JazzMe
     User: admin
     Password: admin
-    Genre: Jazz
     Description: Indie jazz radio station, Online cast
     BitRate: 128
+    Genre: Jazz
     BurstSize: 65535
-    DumpFile:
+    DumpFile: ""
+    MaxListeners: 0
+    contenttype: ""
+    streamurl: /JazzMe
+    state:
+        started: false
+        startedtime: 0001-01-01T00:00:00Z
+        metainfo:
+            metaint: 163840
+            streamtitle: ""
+        listeners: 0
