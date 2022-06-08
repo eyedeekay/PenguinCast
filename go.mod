@@ -10,5 +10,5 @@ require (
 	golang.org/x/net v0.0.0-20210525063256-abc453219eb5
 	golang.org/x/text v0.3.6
 	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
-	i2pgit.org/idk/dialeverything v0.0.0-20220608204601-1c59db8ea030
+	i2pgit.org/idk/dialeverything v0.0.0-20220608213304-cb985a7ede48
 )
