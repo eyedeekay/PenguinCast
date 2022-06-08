@@ -189,7 +189,6 @@ func (i Server) getHost(addr string) string {
 
 func (i *Server) randomPassword() string {
 	pass := strconv.FormatInt(rand.Int63(), 10)
-	i.logger.Log("Random password: %s", pass)
 	return pass
 }
 
@@ -201,28 +200,27 @@ func (i *Server) Start() {
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt, os.Kill)
-	/*if i.Options.Auth.AdminPassword == "admin" {
+	i.Options.Load()
+	if i.Options.Auth.AdminPassword == "admin" {
 		i.logger.Log("WARNING: Admin password is default password. Changing it by default. Please check config.yaml for new password.")
 		i.Options.Auth.AdminPassword = i.randomPassword()
-		//i.Options.Save()
-		//if err := i.Options.Save(); err != nil {
-		//	i.logger.Error(err.Error())
-		//	i.logger.Log("Error: %s\n", err.Error())
-		//}
+		if err := i.Options.Save(); err != nil {
+			i.logger.Error(err.Error())
+			i.logger.Log("Error: %s\n", err.Error())
+		}
 		i.logger.Log("Admin password: %s", i.Options.Auth.AdminPassword)
 	}
 	for index, mount := range i.Options.Mounts {
 		if mount.Password == "admin" {
 			i.logger.Log("WARNING: Mount %s password is default password. Changing it by default. Please check config.yaml for new password.", mount.Name)
 			i.Options.Mounts[index].Password = i.randomPassword()
-			//i.Options.Save()
-			//if err := i.Options.Save(); err != nil {
-			//	i.logger.Error(err.Error())
-			//	i.logger.Log("Error: %s\n", err.Error())
-			//}
+			if err := i.Options.Save(); err != nil {
+				i.logger.Error(err.Error())
+				i.logger.Log("Error: %s\n", err.Error())
+			}
 			i.logger.Log("Mount %s password: %s", mount.Name, i.Options.Mounts[index].Password)
 		}
-	}*/
+	}
 	go func() {
 		if i.Options.UsesI2P {
 			go func() {

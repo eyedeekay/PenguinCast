@@ -7,6 +7,8 @@ import (
 	"io/ioutil"
 	"os"
 
+	logl "log"
+
 	"github.com/ssetin/PenguinCast/src/log"
 
 	"gopkg.in/yaml.v3"
@@ -62,7 +64,7 @@ func (o *options) Load() error {
 	return yaml.Unmarshal(yamlFile, o)
 }
 
-func (o *options) Save() error {
+func (o options) Save() error {
 	info, err := os.Stat("config.yaml")
 	if err != nil {
 		return err
@@ -72,5 +74,19 @@ func (o *options) Save() error {
 	if err != nil {
 		return err
 	}
-	return ioutil.WriteFile("config.yaml", bytes, preservedMode)
+	logl.Println(string(bytes))
+
+	err = ioutil.WriteFile("config.new.yaml", bytes, preservedMode)
+	if err != nil {
+		return err
+	}
+	err = os.Rename("config.yaml", "config.yaml.bak")
+	if err != nil {
+		return err
+	}
+	err = os.Rename("config.new.yaml", "config.yaml")
+	if err != nil {
+		return err
+	}
+	return nil
 }
