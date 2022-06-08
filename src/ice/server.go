@@ -5,6 +5,7 @@ package ice
 
 import (
 	"context"
+	"math/rand"
 	"net"
 	"net/http"
 	"os"
@@ -186,6 +187,12 @@ func (i Server) getHost(addr string) string {
 	return addr[:idx]
 }
 
+func (i *Server) randomPassword() string {
+	pass := strconv.FormatInt(rand.Int63(), 10)
+	i.logger.Log("Random password: %s", pass)
+	return pass
+}
+
 /*Start - start listening port ...*/
 func (i *Server) Start() {
 	if atomic.LoadInt32(&i.Started) == 1 {
@@ -194,14 +201,35 @@ func (i *Server) Start() {
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt, os.Kill)
-
+	/*if i.Options.Auth.AdminPassword == "admin" {
+		i.logger.Log("WARNING: Admin password is default password. Changing it by default. Please check config.yaml for new password.")
+		i.Options.Auth.AdminPassword = i.randomPassword()
+		//i.Options.Save()
+		//if err := i.Options.Save(); err != nil {
+		//	i.logger.Error(err.Error())
+		//	i.logger.Log("Error: %s\n", err.Error())
+		//}
+		i.logger.Log("Admin password: %s", i.Options.Auth.AdminPassword)
+	}
+	for index, mount := range i.Options.Mounts {
+		if mount.Password == "admin" {
+			i.logger.Log("WARNING: Mount %s password is default password. Changing it by default. Please check config.yaml for new password.", mount.Name)
+			i.Options.Mounts[index].Password = i.randomPassword()
+			//i.Options.Save()
+			//if err := i.Options.Save(); err != nil {
+			//	i.logger.Error(err.Error())
+			//	i.logger.Log("Error: %s\n", err.Error())
+			//}
+			i.logger.Log("Mount %s password: %s", mount.Name, i.Options.Mounts[index].Password)
+		}
+	}*/
 	go func() {
-		i.mux.Lock()
-		i.StartedTime = time.Now()
-		i.mux.Unlock()
-		atomic.StoreInt32(&i.Started, 1)
 		if i.Options.UsesI2P {
 			go func() {
+				i.mux.Lock()
+				i.StartedTime = time.Now()
+				i.mux.Unlock()
+				atomic.StoreInt32(&i.Started, 1)
 				for {
 					addr := i.Options.Host + ":" + strconv.Itoa(i.Options.Socket.Port)
 					if listener, err := sam.I2PListener(addr, "127.0.0.1:7656", addr); err != nil {
@@ -221,7 +249,10 @@ func (i *Server) Start() {
 								if err := os.Rename(addr+".i2p.public.txt", i.Options.Host+".i2p.public.txt"); err != nil {
 									i.logger.Log("Error: %s\n", err.Error())
 								}
-								i.Options.Save()
+								if err := i.Options.Save(); err != nil {
+									i.logger.Error(err.Error())
+									i.logger.Log("Error: %s\n", err.Error())
+								}
 							}
 						}
 						i.logger.Log("Started on %s", listener.Addr().(i2pkeys.I2PAddr).Base32())
@@ -236,6 +267,10 @@ func (i *Server) Start() {
 		}
 		if !i.Options.DisableClearnet {
 			go func() {
+				i.mux.Lock()
+				i.StartedTime = time.Now()
+				i.mux.Unlock()
+				atomic.StoreInt32(&i.Started, 1)
 				for {
 					if listener, err := net.Listen("tcp", i.srv.Addr); err != nil {
 						panic(err)

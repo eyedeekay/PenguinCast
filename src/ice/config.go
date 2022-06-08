@@ -5,6 +5,7 @@ package ice
 
 import (
 	"io/ioutil"
+	"os"
 
 	"github.com/ssetin/PenguinCast/src/log"
 
@@ -62,9 +63,14 @@ func (o *options) Load() error {
 }
 
 func (o *options) Save() error {
+	info, err := os.Stat("config.yaml")
+	if err != nil {
+		return err
+	}
+	preservedMode := info.Mode()
 	bytes, err := yaml.Marshal(o)
 	if err != nil {
 		return err
 	}
-	return ioutil.WriteFile("config.yaml", bytes, 0644)
+	return ioutil.WriteFile("config.yaml", bytes, preservedMode)
 }
