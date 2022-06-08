@@ -221,6 +221,7 @@ func (i *Server) Start() {
 			i.logger.Log("Mount %s password: %s", mount.Name, i.Options.Mounts[index].Password)
 		}
 	}
+	i.Options.Load()
 	go func() {
 		if i.Options.UsesI2P {
 			go func() {

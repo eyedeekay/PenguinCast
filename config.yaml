@@ -1,66 +1,49 @@
 Name: Rollstation radio
 Admin: admin@site.com
 Location: Saint Petersburg
-UsesI2P: true
-DisableClearnet: true
-Host: werpkp4m6exip3i2i6b3ppbi6cmcungfmx52i5qnzfknchoadufq.b32.i2p
+UsesI2P: false
+DisableClearnet: false
+Host: 127.0.0.1
 Socket:
-    Port: 8008
+  Port: 8008
+
 Limits:
-    Clients: 100000
-    Sources: 5
-    SourceIdleTimeOut: 10
-    EmptyBufferIdleTimeOut: 5
-    WriteTimeOut: 10
+  Clients: 100000
+  Sources: 5
+  SourceIdleTimeOut: 10
+  EmptyBufferIdleTimeOut: 5
+  WriteTimeOut: 10
+
 Auth:
-    AdminPassword: "4137393870934386221"
+  AdminPassword: admin
+
 Paths:
-    Base: ""
-    Web: html/
-    Log: log/
+  Log: log/
+  Web: html/
+
 Logging:
-    LogLevel: 4
-    LogSize: 50000
-    UseMonitor: true
-    MonitorInterval: 5
-    UseStat: true
-    StatInterval: 5
+  LogLevel: 4
+  LogSize: 50000
+  UseMonitor: true
+  MonitorInterval: 5
+  UseStat: true
+  StatInterval: 5
+
 Mounts:
   - Name: RockRadio96
     User: admin
-    Password: "6189844762116636554"
+    Password: admin
+    Genre: Rock
     Description: Rock radio station, Saint Petersburg
     BitRate: 96
-    Genre: Rock
     BurstSize: 65535
-    DumpFile: ""
-    MaxListeners: 0
-    contenttype: ""
-    streamurl: ""
-    server: null
-    state:
-        started: false
-        startedtime: 0001-01-01T00:00:00Z
-        metainfo:
-            metaint: 0
-            streamtitle: ""
-        listeners: 0
+    DumpFile:
+
   - Name: JazzMe
     User: admin
-    Password: "9052683168393512620"
+    Password: admin
+    Genre: Jazz
     Description: Indie jazz radio station, Online cast
     BitRate: 128
-    Genre: Jazz
     BurstSize: 65535
-    DumpFile: ""
-    MaxListeners: 0
-    contenttype: ""
-    streamurl: ""
-    server: null
-    state:
-        started: false
-        startedtime: 0001-01-01T00:00:00Z
-        metainfo:
-            metaint: 0
-            streamtitle: ""
-        listeners: 0
+    DumpFile:
