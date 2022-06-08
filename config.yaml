@@ -1,6 +1,8 @@
 Name: Rollstation radio
 Admin: admin@site.com
 Location: Saint Petersburg
+UsesI2P: true
+DisableClearnet: false
 Host: 127.0.0.1
 Socket:
   Port: 8008

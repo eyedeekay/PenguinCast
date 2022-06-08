@@ -5,6 +5,7 @@ package ice
 
 import (
 	"context"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -14,6 +15,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/eyedeekay/i2pkeys"
+	sam "github.com/eyedeekay/sam3/helper"
 	"github.com/ssetin/PenguinCast/src/log"
 	"github.com/ssetin/PenguinCast/src/pool"
 
@@ -197,10 +200,35 @@ func (i *Server) Start() {
 		i.StartedTime = time.Now()
 		i.mux.Unlock()
 		atomic.StoreInt32(&i.Started, 1)
-		i.logger.Log("Started on %s", i.srv.Addr)
-
-		if err := i.srv.ListenAndServe(); err != http.ErrServerClosed {
-			panic(err)
+		if i.Options.UsesI2P {
+			go func() {
+				for {
+					if listener, err := sam.I2PListener(i.srv.Addr, "127.0.0.1:7656", i.srv.Addr); err != nil {
+						panic(err)
+					} else {
+						i.logger.Log("Started on %s", listener.Addr().(i2pkeys.I2PAddr).Base32())
+						if err := i.srv.Serve(listener); err != nil {
+							listener.Close()
+							continue
+						}
+					}
+				}
+			}()
+		}
+		if !i.Options.DisableClearnet {
+			go func() {
+				for {
+					if listener, err := net.Listen("tcp", i.srv.Addr); err != nil {
+						panic(err)
+					} else {
+						i.logger.Log("Started on %s", i.srv.Addr)
+						if err := i.srv.Serve(listener); err != http.ErrServerClosed {
+							listener.Close()
+							continue
+						}
+					}
+				}
+			}()
 		}
 	}()
 

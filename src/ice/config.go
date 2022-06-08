@@ -12,10 +12,12 @@ import (
 )
 
 type options struct {
-	Name     string `yaml:"Name"`
-	Admin    string `yaml:"Admin,omitempty"`
-	Location string `yaml:"Location,omitempty"`
-	Host     string `yaml:"Host"`
+	Name            string `yaml:"Name"`
+	Admin           string `yaml:"Admin,omitempty"`
+	Location        string `yaml:"Location,omitempty"`
+	UsesI2P         bool   `yaml:"UsesI2P,omitempty"`
+	DisableClearnet bool   `yaml:"DisableClearnet,omitempty"`
+	Host            string `yaml:"Host"`
 
 	Socket struct {
 		Port int `yaml:"Port"`
