@@ -8,7 +8,6 @@ import (
 )
 
 func main() {
-
 	server, err := ice.NewServer()
 	if server.Options.UsesI2P {
 		if err := dialeverything.Init(); err != nil {
