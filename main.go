@@ -8,11 +8,14 @@ import (
 )
 
 func main() {
-	if err := dialeverything.Init(); err != nil {
-		log.Fatal(err)
-	}
-	defer dialeverything.Destroy()
+
 	server, err := ice.NewServer()
+	if server.Options.UsesI2P {
+		if err := dialeverything.Init(); err != nil {
+			log.Fatal(err)
+		}
+		defer dialeverything.Destroy()
+	}
 
 	if err != nil {
 		log.Println(err.Error())
