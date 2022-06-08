@@ -60,3 +60,11 @@ func (o *options) Load() error {
 	}
 	return yaml.Unmarshal(yamlFile, o)
 }
+
+func (o *options) Save() error {
+	bytes, err := yaml.Marshal(o)
+	if err != nil {
+		return err
+	}
+	return ioutil.WriteFile("config.yaml", bytes, 0644)
+}

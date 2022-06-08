@@ -104,7 +104,7 @@ func (m *mount) Clear() {
 	m.State.StartedTime = time.Time{}
 	m.zeroListeners()
 	m.State.MetaInfo.StreamTitle = ""
-	m.StreamURL = fmt.Sprintf("http://%s:%d/%s", m.server.Options.Host, m.server.Options.Socket.Port, m.Name)
+	m.StreamURL = fmt.Sprintf("/%s", m.Name)
 }
 
 func (m *mount) incListeners() {

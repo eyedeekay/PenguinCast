@@ -206,9 +206,15 @@ func (i *Server) Start() {
 					if listener, err := sam.I2PListener(i.srv.Addr, "127.0.0.1:7656", i.srv.Addr); err != nil {
 						panic(err)
 					} else {
+						if i.Options.DisableClearnet {
+							i.srv.Addr = listener.Addr().String() + ":" + strconv.Itoa(i.Options.Socket.Port)
+							i.Options.Host = i.getHost(listener.Addr().String())
+							i.Options.Save()
+						}
 						i.logger.Log("Started on %s", listener.Addr().(i2pkeys.I2PAddr).Base32())
 						if err := i.srv.Serve(listener); err != nil {
 							listener.Close()
+							time.Sleep(time.Second * 15)
 							continue
 						}
 					}
@@ -224,6 +230,7 @@ func (i *Server) Start() {
 						i.logger.Log("Started on %s", i.srv.Addr)
 						if err := i.srv.Serve(listener); err != http.ErrServerClosed {
 							listener.Close()
+							time.Sleep(time.Second * 15)
 							continue
 						}
 					}
