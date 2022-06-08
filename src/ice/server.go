@@ -207,9 +207,12 @@ func (i *Server) Start() {
 						panic(err)
 					} else {
 						if i.Options.DisableClearnet {
+							oldAddr := i.srv.Addr
 							i.srv.Addr = listener.Addr().String() + ":" + strconv.Itoa(i.Options.Socket.Port)
 							i.Options.Host = i.getHost(listener.Addr().String())
 							i.Options.Save()
+							os.Rename(oldAddr+".private", i.srv.Addr+".private")
+							os.Rename(oldAddr+".public.txt", i.srv.Addr+".public.txt")
 						}
 						i.logger.Log("Started on %s", listener.Addr().(i2pkeys.I2PAddr).Base32())
 						if err := i.srv.Serve(listener); err != nil {
