@@ -207,18 +207,22 @@ func (i *Server) Start() {
 					if listener, err := sam.I2PListener(addr, "127.0.0.1:7656", addr); err != nil {
 						panic(err)
 					} else {
-						if i.Options.DisableClearnet && !strings.HasSuffix(i.Options.Host, ".i2p") {
-							oldAddr := addr
-							newAddr := listener.Addr().String() + ":" + strconv.Itoa(i.Options.Socket.Port)
-							i.srv.Addr = newAddr
-							i.Options.Host = listener.Addr().String()
-							if err := os.Rename(oldAddr+".i2p.private", i.srv.Addr+".i2p.private"); err != nil {
-								i.logger.Log("Error: %s\n", err.Error())
+						if i.Options.DisableClearnet && i.Options.Host != listener.Addr().String() {
+							// do the following only if the listener is not on the clearnet, and if the hostname
+							// is not the same as the listener address, but only if the hostname is ends in
+							// .b32.i2p or a non-I2P hostname
+							if strings.HasSuffix(i.Options.Host, ".b32.i2p") || !strings.HasSuffix(i.Options.Host, ".i2p") {
+								newAddr := listener.Addr().String() + ":" + strconv.Itoa(i.Options.Socket.Port)
+								i.srv.Addr = newAddr
+								i.Options.Host = listener.Addr().String()
+								if err := os.Rename(addr+".i2p.private", i.srv.Addr+".i2p.private"); err != nil {
+									i.logger.Log("Error: %s\n", err.Error())
+								}
+								if err := os.Rename(addr+".i2p.public.txt", i.srv.Addr+".i2p.public.txt"); err != nil {
+									i.logger.Log("Error: %s\n", err.Error())
+								}
+								i.Options.Save()
 							}
-							if err := os.Rename(oldAddr+".i2p.public.txt", i.srv.Addr+".i2p.public.txt"); err != nil {
-								i.logger.Log("Error: %s\n", err.Error())
-							}
-							i.Options.Save()
 						}
 						i.logger.Log("Started on %s", listener.Addr().(i2pkeys.I2PAddr).Base32())
 						if err := i.srv.Serve(listener); err != nil {
