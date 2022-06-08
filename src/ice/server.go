@@ -207,7 +207,7 @@ func (i *Server) Start() {
 					if listener, err := sam.I2PListener(addr, "127.0.0.1:7656", addr); err != nil {
 						panic(err)
 					} else {
-						if i.Options.DisableClearnet && !strings.HasSuffix(i.Options.Host, ".b32.i2p") {
+						if i.Options.DisableClearnet && !strings.HasSuffix(i.Options.Host, ".i2p") {
 							oldAddr := addr
 							newAddr := listener.Addr().String() + ":" + strconv.Itoa(i.Options.Socket.Port)
 							i.srv.Addr = newAddr
