@@ -42,7 +42,10 @@ func (i *Server) renderPage(w http.ResponseWriter, r *http.Request, tplName stri
 		i.internalHandler(w, r)
 		return
 	}
-	err = t.Execute(w, i)
+	j := i
+	j.Options.Host = r.Host
+	err = t.Execute(w, j)
+	//err = t.Execute(w, i)
 	if err != nil {
 		i.logger.Error(err.Error())
 		i.internalHandler(w, r)

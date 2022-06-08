@@ -1,9 +1,9 @@
 Name: Rollstation radio
 Admin: admin@site.com
 Location: Saint Petersburg
-UsesI2P: true
-DisableClearnet: true
-Host: aukvjjdbxllktvs6n2qce4tr4ir4lpzcfjb4k37qrx3oiaxht24q.b32.i2p
+UsesI2P: false
+DisableClearnet: false
+Host: 127.0.0.1
 Socket:
     Port: 8008
 Limits:
@@ -36,7 +36,7 @@ Mounts:
     DumpFile: ""
     MaxListeners: 0
     contenttype: ""
-    streamurl: /RockRadio96
+    streamurl: http://aukvjjdbxllktvs6n2qce4tr4ir4lpzcfjb4k37qrx3oiaxht24q.b32.i2p:8008/RockRadio96
     state:
         started: false
         startedtime: 0001-01-01T00:00:00Z
@@ -54,7 +54,7 @@ Mounts:
     DumpFile: ""
     MaxListeners: 0
     contenttype: ""
-    streamurl: /JazzMe
+    streamurl: http://aukvjjdbxllktvs6n2qce4tr4ir4lpzcfjb4k37qrx3oiaxht24q.b32.i2p:8008/JazzMe
     state:
         started: false
         startedtime: 0001-01-01T00:00:00Z

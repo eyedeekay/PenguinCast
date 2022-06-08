@@ -54,7 +54,7 @@ type mount struct {
 	ContentType string
 	StreamURL   string
 
-	server *Server
+	Server *Server
 	logger Logger
 
 	State struct {
@@ -72,7 +72,7 @@ type mount struct {
 //Init ...
 func (m *mount) Init(srv *Server, logger Logger, poolManager PoolManager) error {
 	m.State.MetaInfo.MetaInt = m.BitRate * 1024 / 8 * 10
-	m.server = srv
+	m.Server = srv
 	m.logger = logger
 	m.Clear()
 
@@ -109,13 +109,13 @@ func (m *mount) Clear() {
 
 func (m *mount) incListeners() {
 	atomic.AddInt32(&m.State.Listeners, 1)
-	m.server.incListeners()
+	m.Server.incListeners()
 }
 
 func (m *mount) decListeners() {
 	if atomic.LoadInt32(&m.State.Listeners) > 0 {
 		atomic.AddInt32(&m.State.Listeners, -1)
-		m.server.decListeners()
+		m.Server.decListeners()
 	}
 }
 
@@ -174,9 +174,9 @@ func (m *mount) getParams(paramStr string) map[string]string {
 func (m *mount) sayHello(w *bufio.ReadWriter, icyMeta bool) {
 	_, _ = w.WriteString("HTTP/1.1 200 OK\r\n")
 	_, _ = w.WriteString("Server: ")
-	_, _ = w.WriteString(m.server.serverName)
+	_, _ = w.WriteString(m.Server.serverName)
 	_, _ = w.WriteString(" ")
-	_, _ = w.WriteString(m.server.version)
+	_, _ = w.WriteString(m.Server.version)
 	_, _ = w.WriteString("\r\n")
 	_, _ = w.WriteString("Content-Type: ")
 	_, _ = w.WriteString(m.ContentType)
@@ -203,7 +203,7 @@ func (m *mount) sayHello(w *bufio.ReadWriter, icyMeta bool) {
 }
 
 func (m *mount) saySourceHello(w http.ResponseWriter) {
-	w.Header().Set("Server", m.server.serverName+"/"+m.server.version)
+	w.Header().Set("Server", m.Server.serverName+"/"+m.Server.version)
 	w.Header().Set("Connection", "Keep-Alive")
 	w.Header().Set("Allow", "GET, SOURCE")
 	w.Header().Set("Cache-Control", "no-cache")
@@ -312,7 +312,7 @@ func (m *mount) getIcyMeta() ([]byte, int) {
 	Authenticate SOURCE and write stream from it to appropriate mount buffer
 */
 func (m *mount) write(w http.ResponseWriter, r *http.Request) {
-	if !m.server.checkSources() {
+	if !m.Server.checkSources() {
 		m.logger.Error("Number of sources exceeded")
 		http.Error(w, "Number of sources exceeded", 403)
 		return
@@ -361,13 +361,13 @@ func (m *mount) write(w http.ResponseWriter, r *http.Request) {
 
 	bufRW := bufio.NewReaderSize(conn, 1024*m.BitRate/8)
 
-	m.server.incSources()
+	m.Server.incSources()
 	// max bytes per second according to bitrate
 	buff := make([]byte, m.BitRate*1024/8)
 
 	for {
 		//check, if server has to be stopped
-		if atomic.LoadInt32(&m.server.Started) == 0 {
+		if atomic.LoadInt32(&m.Server.Started) == 0 {
 			break
 		}
 
@@ -375,7 +375,7 @@ func (m *mount) write(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			if err == io.EOF {
 				idle++
-				if idle >= m.server.Options.Limits.SourceIdleTimeOut {
+				if idle >= m.Server.Options.Limits.SourceIdleTimeOut {
 					m.logger.Error("Source idle time is reached")
 					break
 				}
@@ -406,7 +406,7 @@ func (m *mount) write(w http.ResponseWriter, r *http.Request) {
 */
 func (m *mount) read(w http.ResponseWriter, r *http.Request) {
 	var icyMeta bool
-	if !m.server.checkListeners() {
+	if !m.Server.checkListeners() {
 		m.logger.Error("Number of listeners exceeded")
 		http.Error(w, "Number of listeners exceeded", 403)
 		return
@@ -423,8 +423,8 @@ func (m *mount) read(w http.ResponseWriter, r *http.Request) {
 	bytesSent := 0
 	write := 0
 	idle := 0
-	idleTimeOut := m.server.Options.Limits.EmptyBufferIdleTimeOut * 1000
-	writeTimeOut := time.Second * time.Duration(m.server.Options.Limits.WriteTimeOut)
+	idleTimeOut := m.Server.Options.Limits.EmptyBufferIdleTimeOut * 1000
+	writeTimeOut := time.Second * time.Duration(m.Server.Options.Limits.WriteTimeOut)
 	offset := 0
 	noMetaBytes := 0
 	partWrite := 0
@@ -468,7 +468,7 @@ OuterLoop:
 		beginIteration = time.Now()
 		conn.SetWriteDeadline(time.Now().Add(writeTimeOut))
 		//check, if server has to be stopped
-		if atomic.LoadInt32(&m.server.Started) == 0 {
+		if atomic.LoadInt32(&m.Server.Started) == 0 {
 			break
 		}
 
@@ -565,12 +565,12 @@ func (m *mount) closeAndUnlock(pack *bufElement, err error) {
 
 func (m *mount) close(isSource bool, bytesSend *int, start time.Time, r *http.Request) {
 	if isSource {
-		m.server.decSources()
+		m.Server.decSources()
 		m.Clear()
 	} else {
 		m.decListeners()
 	}
 	t := time.Now()
 	elapsed := t.Sub(start)
-	m.server.writeAccessLog(m.server.getHost(r.RemoteAddr), start, r.Method+" "+r.RequestURI+" "+r.Proto, *bytesSend, r.Referer(), r.UserAgent(), int(elapsed.Seconds()))
+	m.Server.writeAccessLog(m.Server.getHost(r.RemoteAddr), start, r.Method+" "+r.RequestURI+" "+r.Proto, *bytesSend, r.Referer(), r.UserAgent(), int(elapsed.Seconds()))
 }

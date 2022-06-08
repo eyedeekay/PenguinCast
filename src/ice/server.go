@@ -215,10 +215,10 @@ func (i *Server) Start() {
 								newAddr := listener.Addr().String() + ":" + strconv.Itoa(i.Options.Socket.Port)
 								i.srv.Addr = newAddr
 								i.Options.Host = listener.Addr().String()
-								if err := os.Rename(addr+".i2p.private", i.srv.Addr+".i2p.private"); err != nil {
+								if err := os.Rename(addr+".i2p.private", i.Options.Host+".i2p.private"); err != nil {
 									i.logger.Log("Error: %s\n", err.Error())
 								}
-								if err := os.Rename(addr+".i2p.public.txt", i.srv.Addr+".i2p.public.txt"); err != nil {
+								if err := os.Rename(addr+".i2p.public.txt", i.Options.Host+".i2p.public.txt"); err != nil {
 									i.logger.Log("Error: %s\n", err.Error())
 								}
 								i.Options.Save()

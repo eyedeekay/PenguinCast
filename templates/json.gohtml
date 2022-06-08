@@ -11,7 +11,7 @@
         "Content Type": "{{.ContentType}}",
         "Bitrate": "{{.BitRate}}",
         "Listeners (current)": "{{.State.Listeners}}",
-        "Stream URL": "{{.StreamURL}}",
+        "Stream URL": "http://{{.Server.Options.Host}}{{.StreamURL}}",
         "Currently playing": "{{.State.MetaInfo.StreamTitle}}"
     }{{end}}
     ],
