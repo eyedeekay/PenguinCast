@@ -5,6 +5,8 @@ package ice
 
 import (
 	"context"
+	"fmt"
+	"io/ioutil"
 	"math/rand"
 	"net"
 	"net/http"
@@ -221,7 +223,7 @@ func (i *Server) Start() {
 			i.logger.Log("Mount %s password: %s", mount.Name, i.Options.Mounts[index].Password)
 		}
 	}
-	i.Options.Load()
+	//i.Options.Load()
 	go func() {
 		if i.Options.UsesI2P {
 			go func() {
@@ -230,11 +232,13 @@ func (i *Server) Start() {
 				i.mux.Unlock()
 				atomic.StoreInt32(&i.Started, 1)
 				for {
-					addr := i.Options.Host + ":" + strconv.Itoa(i.Options.Socket.Port)
+					addr := i.Options.Host
 					if listener, err := sam.I2PListener(addr, "127.0.0.1:7656", addr); err != nil {
 						panic(err)
 					} else {
-						if i.Options.DisableClearnet && i.Options.Host != listener.Addr().String() {
+						i.logger.Log("Listening on: %s", listener.Addr().String())
+						i.logger.Log("Host address: %s", i.Options.Host)
+						if i.Options.DisableClearnet && !strings.Contains(i.Options.Host, listener.Addr().String()) {
 							// do the following only if the listener is not on the clearnet, and if the hostname
 							// is not the same as the listener address, but only if the hostname is ends in
 							// .b32.i2p or a non-I2P hostname
@@ -283,9 +287,36 @@ func (i *Server) Start() {
 					}
 				}
 			}()
+		} else {
+			go func() {
+				server := http.ServeMux{}
+				server.HandleFunc("/", i.hello)
+				server.HandleFunc("/index.html", i.hello)
+				i.logger.Log("Started on %s", i.srv.Addr)
+				if err := http.ListenAndServe(fmt.Sprintf("%s:%d", "127.0.0.1", i.Options.Socket.Port), &server); err != nil {
+					panic(err)
+				}
+			}()
 		}
 	}()
 
 	<-stop
 	atomic.StoreInt32(&i.Started, 0)
+}
+
+func (i *Server) hello(w http.ResponseWriter, req *http.Request) {
+	scheme := "http://"
+	if i.Options.UsesI2P {
+		b32, err := ioutil.ReadFile(i.Options.Host + ".i2p.public.txt")
+		if err != nil {
+			i.logger.Log("Error: %s\n", err.Error())
+			return
+		}
+		addr := fmt.Sprintf("%s%s/info", scheme, string(b32))
+		http.Redirect(w, req, addr, http.StatusFound)
+	} else {
+		addr := fmt.Sprintf("%s%s/info", scheme, i.Options.Host)
+		http.Redirect(w, req, addr, http.StatusFound)
+	}
+
 }
