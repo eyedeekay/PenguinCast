@@ -57,9 +57,6 @@ type options struct {
 }
 
 func (o *options) Load() error {
-	if _, err := os.Stat("config.yaml"); err != nil {
-		return err
-	}
 	yamlFile, err := ioutil.ReadFile("config.yaml")
 	if err != nil {
 		return err
